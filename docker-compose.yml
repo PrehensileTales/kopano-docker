@@ -1,0 +1,120 @@
+services:
+  mariadb:
+    image: kopano-db:latest
+    restart: always
+    command: --innodb_buffer_pool_size=8G --innodb_log_file_size=2G --innodb_log_buffer_size=512M --innodb_file_per_table --key_buffer_size=256M --max_allowed_packet=64M --thread_stack=256K --thread_cache_size=32 --max_connections=8192 --query_cache_limit=2M --query_cache_size=32M --max_connect_errors=2048 
+    environment:
+      - MARIADB_ROOT_PASSWORD=${DATABASE_ROOT_PASSWORD}
+      - MARIADB_DATABASE=${DATABASE_NAME}
+      - MARIADB_USER=${DATABASE_USER}
+      - MARIADB_PASSWORD=${DATABASE_PASSWORD}
+    volumes:
+      - mariadb-data:/var/lib/mysql
+
+  core:
+    image: kopano-core:latest
+    restart: always
+    depends_on:
+      mariadb
+    environment:
+      - KC_SERVER_mysql_host=mariadb
+      - KC_SERVER_mysql_database=${DATABASE_NAME}
+      - KC_SERVER_mysql_user=${DATABASE_USER}
+      - KC_SERVER_mysql_password=${DATABASE_PASSWORD}
+    env_file:
+      - kc_server.env
+      - kc_ldap.env
+    volumes:
+      - attachments:/var/lib/kopano/attachments/
+      - kopano-sockets:/var/run/kopano/
+
+  webapp:
+    image: kopano-webapp:latest
+    restart: always
+    depends_on:
+      core
+    env_file:
+      - kc_webapp.env
+    volumes:
+      - kopano-sockets:/var/run/kopano/
+      - kopano-webapp-tmp:/var/lib/kopano-webapp/tmp
+
+  webapp-frontend:
+    image: kopano-webapp-frontend:latest
+    restart: always
+    depends_on:
+      webapp
+    ports:
+      - "127.0.0.1:9001:80"
+    volumes:
+      - kopano-sockets:/var/run/kopano/
+      - kopano-webapp-tmp:/var/lib/kopano-webapp/tmp
+
+#  search:
+#    image: kopano-search:latest
+#    restart: always
+#    depends_on:
+#      core
+#    env_file:
+#      - kc_search.env
+#    volumes:
+#      - search-index:/var/lib/kopano/index/
+#      - kopano-sockets:/var/run/kopano/
+#
+  spooler:
+    image: kopano-spooler:latest
+    restart: always
+    depends_on:
+      core
+    env_file:
+      - kc_spooler.env
+    volumes:
+      - kopano-sockets:/var/run/kopano/
+
+  dagent:
+    image: kopano-dagent:latest
+    restart: always
+    depends_on:
+      core
+    env_file:
+      - kc_dagent.env
+    ports:
+      - "2003:2003"
+    volumes:
+      - kopano-sockets:/var/run/kopano/
+
+  gateway:
+    image: kopano-gateway:latest
+    restart: always
+    environment:
+      - KC_GATEWAY_server_socket=http://core:236/kopano
+    depends_on:
+      core
+    env_file:
+      - kc_gateway.env
+    ports:
+      - "127.0.0.1:110:110"
+      - "127.0.0.1:143:143"
+
+  z-push:
+    image: kopano-z-push:latest
+    restart: always
+    depends_on:
+      core
+    env_file:
+      - kc_z-push.env
+    volumes:
+      - kopano-sockets:/var/run/kopano/
+      - kopano-z-push-state:/var/lib/z-push
+      - kopano-z-push-logs:/var/log/z-push
+
+  z-push-frontend:
+    image: kopano-z-push-frontend:latest
+    restart: always
+    depends_on:
+      z-push
+    ports:
+      - "127.0.0.1:9002:80"
+    volumes:
+      - kopano-sockets:/var/run/kopano/
+      - kopano-z-push-state:/var/lib/z-push
