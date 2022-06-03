@@ -12,4 +12,6 @@ podman build gateway -t kopano-gateway:latest
 podman build z-push -t kopano-z-push:latest
 podman build z-push-frontend -t kopano-z-push-frontend:latest
 podman build ical -t kopano-ical:latest
+podman build kdav -t kopano-kdav:latest
+podman build kdav-frontend -t kopano-kdav-frontend:latest
 #podman build db -t kopano-db:latest

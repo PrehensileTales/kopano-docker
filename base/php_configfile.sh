@@ -13,6 +13,6 @@ fi
 
 for variable in $(awk "BEGIN {for (k in ENVIRON) { if(k ~ /^${1}/) print k }}"); do
 	var_name=$(echo $variable | sed -e "s/${1}//")
-	sed -ie "s|define(\"${var_name}\", .*);|define(\"${var_name}\", ${!variable});|" "${2}"
+	sed -ie "s|define(.${var_name}., .*);|define(\"${var_name}\", ${!variable});|" "${2}"
 	unset ${variable}
 done

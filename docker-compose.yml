@@ -119,14 +119,38 @@ services:
       - kopano-sockets:/var/run/kopano/
       - kopano-z-push-state:/var/lib/z-push
 
-  ical:
-    image: kopano-ical:latest
+  kdav:
+    image: kopano-kdav:latest
     restart: always
-    environment:
-      - KC_ICAL_server_socket=http://core:236/kopano
-    env_file:
-      - kc_ical.env
     depends_on:
       core
+    environment:
+      - KC_KDAV_MAPI_SERVER="http://core:236/"
+    env_file:
+      - kc_kdav.env
+    volumes:
+      - kdav-sockets:/var/run/kopano/
+      - kopano-kdav-state:/var/lib/kopano/kdav/
+
+  kdav-frontend:
+    image: kopano-kdav-frontend:latest
+    restart: always
+    depends_on:
+      z-push
     ports:
-      - "127.0.0.1:9003:80"
+      - "127.0.0.1:9004:80"
+    volumes:
+      - kdav-sockets:/var/run/kopano/
+      - kopano-kdav-state:/var/lib/kopano/kdav/
+
+#  ical:
+#    image: kopano-ical:latest
+#    restart: always
+#    environment:
+#      - KC_ICAL_server_socket=http://core:236/kopano
+#    env_file:
+#      - kc_ical.env
+#    depends_on:
+#      core
+#    ports:
+#      - "127.0.0.1:9003:80"
