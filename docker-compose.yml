@@ -50,17 +50,17 @@ services:
       - kopano-sockets:/var/run/kopano/
       - kopano-webapp-tmp:/var/lib/kopano-webapp/tmp
 
-#  search:
-#    image: kopano-search:latest
-#    restart: always
-#    depends_on:
-#      core
-#    env_file:
-#      - kc_search.env
-#    volumes:
-#      - search-index:/var/lib/kopano/index/
-#      - kopano-sockets:/var/run/kopano/
-#
+  search:
+    image: kopano-search:latest
+    restart: always
+    depends_on:
+      core
+    env_file:
+      - kc_search.env
+    volumes:
+      - kopano-sockets:/var/run/kopano/
+      - search-index:/var/lib/kopano/index/
+
   spooler:
     image: kopano-spooler:latest
     restart: always
@@ -118,3 +118,13 @@ services:
     volumes:
       - kopano-sockets:/var/run/kopano/
       - kopano-z-push-state:/var/lib/z-push
+
+  ical:
+    image: kopano-ical:latest
+    restart: always
+    environment:
+      - KC_ICAL_server_socket=http://core:236/kopano
+    depends_on:
+      core
+    ports:
+      - "127.0.0.1:9003:80"
