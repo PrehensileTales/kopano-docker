@@ -124,6 +124,8 @@ services:
     restart: always
     environment:
       - KC_ICAL_server_socket=http://core:236/kopano
+    env_file:
+      - kc_ical.env
     depends_on:
       core
     ports:
