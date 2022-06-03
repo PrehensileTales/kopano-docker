@@ -1,6 +1,6 @@
 services:
   mariadb:
-    image: kopano-db:latest
+    image: mariadb:latest
     restart: always
     command: --innodb_buffer_pool_size=8G --innodb_log_file_size=2G --innodb_log_buffer_size=512M --innodb_file_per_table --key_buffer_size=256M --max_allowed_packet=64M --thread_stack=256K --thread_cache_size=32 --max_connections=8192 --query_cache_limit=2M --query_cache_size=32M --max_connect_errors=2048 
     environment:
