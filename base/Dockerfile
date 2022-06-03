@@ -15,6 +15,8 @@ RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime && \
     echo 'kopano:x:999:999:Kopano Groupware Suite:/dev/null:/sbin/nologin' >> /etc/passwd && \
     echo 'kopano:!:19142::::::' >> /etc/shadow && \
     echo 'kopano:x:999:' >> /etc/group && \
+    apt-get -y update && \
+    apt-get -y install kopano-client kopano-common && \
     apt-get -y remove dpkg-dev && \
     apt-get -y autoremove && \
     apt-get clean 
