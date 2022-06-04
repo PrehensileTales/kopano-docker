@@ -33,11 +33,13 @@ services:
     restart: always
     depends_on:
       core
+    environment:
+      - KC_WEBAPP_DEFAULT_SERVER="http://core:236/kopano"
     env_file:
       - kc_webapp.env
     volumes:
-      - kopano-sockets:/var/run/kopano/
       - kopano-webapp-tmp:/var/lib/kopano-webapp/tmp
+      - kopano-webapp-sockets:/var/run/kopano/
 
   webapp-frontend:
     image: kopano-webapp-frontend:latest
@@ -47,8 +49,8 @@ services:
     ports:
       - "127.0.0.1:9001:80"
     volumes:
-      - kopano-sockets:/var/run/kopano/
       - kopano-webapp-tmp:/var/lib/kopano-webapp/tmp
+      - kopano-webapp-sockets:/var/run/kopano/
 
   search:
     image: kopano-search:latest
@@ -101,10 +103,12 @@ services:
     restart: always
     depends_on:
       core
+    environment:
+      - Z_PUSH_KOPANO_MAPI_SERVER="http://core:236/kopano"
     env_file:
       - kc_z-push.env
     volumes:
-      - kopano-sockets:/var/run/kopano/
+      - kopano-z-push-sockets:/var/run/kopano/
       - kopano-z-push-state:/var/lib/z-push
       - kopano-z-push-logs:/var/log/z-push
 
@@ -116,7 +120,7 @@ services:
     ports:
       - "127.0.0.1:9002:80"
     volumes:
-      - kopano-sockets:/var/run/kopano/
+      - kopano-z-push-sockets:/var/run/kopano/
       - kopano-z-push-state:/var/lib/z-push
 
   kdav:
